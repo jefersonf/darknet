@@ -1,0 +1,7 @@
+classes= 20
+train  = /home/jeferson/alexeyAB/darknet/build/darknet/x64/data/voc/train.txt
+valid  = /home/jeferson/alexeyAB/darknet/build/darknet/x64/data/voc/2007_test.txt
+names = data/voc.names
+backup = /home/jeferson/alexeyAB/darknet/backup/
+
+
