@@ -961,7 +961,7 @@ float validate_detector_map(char *datacfg, char *cfgfile, char *weightfile, floa
 
         // MS COCO - uses 101-Recall-points on PR-chart.
         // PascalVOC2007 - uses 11-Recall-points on PR-chart.
-        // PascalVOC2010–2012 - uses Area-Under-Curve on PR-chart.
+        // PascalVOC2010ï¿½2012 - uses Area-Under-Curve on PR-chart.
         // ImageNet - uses Area-Under-Curve on PR-chart.
 
         // correct mAP calculation: ImageNet, PascalVOC 2010-2012
@@ -1301,7 +1301,7 @@ void test_detector(char *datacfg, char *cfgfile, char *weightfile, char *filenam
         int nboxes = 0;
         detection *dets = get_network_boxes(&net, im.w, im.h, thresh, hier_thresh, 0, 1, &nboxes, letterbox);
         if (nms) do_nms_sort(dets, nboxes, l.classes, nms);
-        draw_detections_v3(im, dets, nboxes, thresh, names, alphabet, l.classes, ext_output);
+        draw_detections_v3(im, dets, nboxes, thresh, names, alphabet, l.classes, ext_output, input);
         save_image(im, "predictions");
         if (!dont_show) {
             show_image(im, "predictions");

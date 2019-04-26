@@ -304,7 +304,50 @@ int compare_by_probs(const void *a_ptr, const void *b_ptr) {
     return delta < 0 ? -1 : delta > 0 ? 1 : 0;
 }
 
-void draw_detections_v3(image im, detection *dets, int num, float thresh, char **names, image **alphabet, int classes, int ext_output)
+/* start a jeferson update -------------------- */
+
+int get_last_slash_idx(char *input) {
+    int idx = strlen(input) - 1;
+    while (idx >= 0 && input[idx] != '/') {
+        idx -= 1;
+    }
+    ++idx;
+    return idx;
+}
+
+char *get_image_id(char *input) {
+    int input_sz = strlen(input);
+    int last_slash_idx = input_sz - 1;
+    while (last_slash_idx >= 0 && input[last_slash_idx] != '/') {
+        last_slash_idx -= 1;
+    }
+
+    char *ret = (char *)calloc(256, sizeof(char));
+    //printf(">> %s, slash_idx=%d}\n", input + last_slash_idx+1, last_slash_idx);
+    last_slash_idx++;
+    strncat(ret, input + last_slash_idx, input_sz - last_slash_idx - 4); // 4 is relate to .xml extension
+    return ret;
+}
+
+char *get_image_year(char *input) {
+    int input_sz = strlen(input);
+    int last_slash_idx = input_sz - 1;
+    int cnt = 3;
+    while (last_slash_idx >= 0 && cnt > 0) { 
+        last_slash_idx -= 1;
+        if (input[last_slash_idx] == '/') cnt--;
+    }
+
+    char *ret = (char *)calloc(256, sizeof(char));
+    //printf(">> %s, slash_idx=%d}\n", input + last_slash_idx+1, last_slash_idx);
+    last_slash_idx++;
+    strncat(ret, input + last_slash_idx, 7); // 4 is relate to .xml extension
+    return ret;
+}
+
+/* end a jeferson update -------------------- */
+
+void draw_detections_v3(image im, detection *dets, int num, float thresh, char **names, image **alphabet, int classes, int ext_output, char *input)
 {
     static int frame_id = 0;
     frame_id++;
@@ -315,15 +358,79 @@ void draw_detections_v3(image im, detection *dets, int num, float thresh, char *
     // text output
     qsort(selected_detections, selected_detections_num, sizeof(*selected_detections), compare_by_lefts);
     int i;
+
+   /* start a jeferson update -------------------- */
+
+    FILE* xml_file = NULL;
+    char buff[256];
+    char *annatation_xml = buff;
+    char *dir_anns = "/home/jeferson/alexeyAB/darknet/ann/";
+    strcat(annatation_xml, dir_anns);
+    strcat(annatation_xml, (input + get_last_slash_idx(input)));
+
+    char *dot_ext;
+    int dot_ext_index;
+    dot_ext = strchr(annatation_xml, '.');
+    dot_ext_index = (int)(dot_ext - annatation_xml);
+    char xml_ext[] = ".xml";
+    for (i = dot_ext_index; i < (int) (dot_ext_index + strlen(xml_ext)); ++i) {
+       annatation_xml[i] = xml_ext[i - dot_ext_index];
+    }
+
+    xml_file = fopen(annatation_xml, "wb");
+    char *ann_buf = (char *)calloc(2024*1000, sizeof(char));
+
+    //printf("{ \"%s\", %d }\n", annatation_xml, dot_ext_index);
+ 
+    sprintf(ann_buf, "<annotation>\n\t<folder>%s</folder>\n\t<filename>%s.jpg</filename>\n\t<source>\n\t\t<database>The %s Database</database>\n\t\t<annotation>PASCAL %s</annotation>\n\t\t<image>unknown</image> \n\t\t<flickrid>unknown</flickrid>\n\t</source>\n\t<owner>\n\t\t<flickrid>unknown</flickrid>\n\t\t<name>unknown</name>\n\t</owner>\n\t<size>\n\t\t<width>%d</width>\n\t\t<height>%d</height>\n\t\t<depth>%d</depth>\n\t</size>\n\t<segmented>0</segmented>", 
+    get_image_year(input),
+    get_image_id(input), 
+    get_image_year(input), 
+    get_image_year(input),
+    im.w, im.h, im.c);
+
+    /* end a jeferson update ----------------------- */
+
     for (i = 0; i < selected_detections_num; ++i) {
+        /* start a jeferson update ----------------------- */
+        char *ann_objs_buf = (char *)calloc(1024, sizeof(char));
+        /* end a jeferson update ------------------------- */
         const int best_class = selected_detections[i].best_class;
         printf("%s: %.0f%%", names[best_class],    selected_detections[i].det.prob[best_class] * 100);
-        if (ext_output)
-            printf("\t(left_x: %4.0f   top_y: %4.0f   width: %4.0f   height: %4.0f)\n",
-                round((selected_detections[i].det.bbox.x - selected_detections[i].det.bbox.w / 2)*im.w),
-                round((selected_detections[i].det.bbox.y - selected_detections[i].det.bbox.h / 2)*im.h),
-                round(selected_detections[i].det.bbox.w*im.w), round(selected_detections[i].det.bbox.h*im.h));
-        else
+        if (ext_output) {
+            //printf("\t(left_x: %4.0f   top_y: %4.0f   width: %4.0f   height: %4.0f)\n",
+            //    round((selected_detections[i].det.bbox.x - selected_detections[i].det.bbox.w / 2)*im.w),
+            //    round((selected_detections[i].det.bbox.y - selected_detections[i].det.bbox.h / 2)*im.h),
+            //    round(selected_detections[i].det.bbox.w*im.w), round(selected_detections[i].det.bbox.h*im.h));
+
+            /* start a jeferson update ----------------------- */
+
+            float xmin = round((selected_detections[i].det.bbox.x - selected_detections[i].det.bbox.w / 2)*im.w);
+            float ymin = round((selected_detections[i].det.bbox.y - selected_detections[i].det.bbox.h / 2)*im.h);
+            float xmax = xmin + round(selected_detections[i].det.bbox.w*im.w);
+            float ymax = ymin + round(selected_detections[i].det.bbox.h*im.h);
+            // To avoid negative coordenates
+            if (xmin < 0) xmin = 0;
+            if (ymin < 0) ymin = 0;
+            printf("{\"xmin\": %.0f, \"ymin\": %.0f, \"xmax\": %.0f, \"ymax\": %.0f}}%s\n", xmin, ymin, xmax, ymax, ((i < selected_detections_num - 1) ? ",": "") );
+
+            sprintf(ann_objs_buf, "\n\t<object>\n\t\t<name>%s</name>\n\t\t<pose>%s</pose>\n\t\t<truncated>%d</truncated>\n\t\t<difficult>%d</difficult>\n\t\t<detprob>%.10f</detprob>\n\t\t<bndbox>\n\t\t\t<xmin>%.0f</xmin>\n\t\t\t<ymin>%.0f</ymin>\n\t\t\t<xmax>%.0f</xmax>\n\t\t\t<ymax>%.0f</ymax>\n\t\t</bndbox>\n\t</object>", 
+            names[best_class], // class name
+            "unknown", // Pose
+            0, // is truncated
+            0, // is difficult
+            selected_detections[i].det.prob[best_class], // detection prob for best class 
+            xmin,
+            ymin, 
+            xmax,
+            ymax);
+
+            strcat(ann_buf, ann_objs_buf);
+            free(ann_objs_buf);
+
+            /* end a jeferson update ------------------------- */
+
+        } else
             printf("\n");
         int j;
         for (j = 0; j < classes; ++j) {
@@ -332,6 +439,12 @@ void draw_detections_v3(image im, detection *dets, int num, float thresh, char *
             }
         }
     }
+
+    /* start a jeferson update ----------------------- */
+    strcat(ann_buf, "\n</annotation>");
+    fwrite(ann_buf, sizeof(char), strlen(ann_buf), xml_file);
+    free(ann_buf);
+    /* end a jeferson update ------------------------- */
 
     // image output
     qsort(selected_detections, selected_detections_num, sizeof(*selected_detections), compare_by_probs);
