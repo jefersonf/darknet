@@ -317,14 +317,8 @@ int get_last_slash_idx(char *input) {
 
 char *get_image_id(char *input) {
     int input_sz = strlen(input);
-    int last_slash_idx = input_sz - 1;
-    while (last_slash_idx >= 0 && input[last_slash_idx] != '/') {
-        last_slash_idx -= 1;
-    }
-
     char *ret = (char *)calloc(256, sizeof(char));
-    //printf(">> %s, slash_idx=%d}\n", input + last_slash_idx+1, last_slash_idx);
-    last_slash_idx++;
+    int last_slash_idx = get_last_slash_idx(input);
     strncat(ret, input + last_slash_idx, input_sz - last_slash_idx - 4); // 4 is relate to .xml extension
     return ret;
 }
@@ -339,9 +333,8 @@ char *get_image_year(char *input) {
     }
 
     char *ret = (char *)calloc(256, sizeof(char));
-    //printf(">> %s, slash_idx=%d}\n", input + last_slash_idx+1, last_slash_idx);
     last_slash_idx++;
-    strncat(ret, input + last_slash_idx, 7); // 4 is relate to .xml extension
+    strncat(ret, input + last_slash_idx, 7);
     return ret;
 }
 
