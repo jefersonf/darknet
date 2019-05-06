@@ -1236,6 +1236,7 @@ void test_detector(char *datacfg, char *cfgfile, char *weightfile, char *filenam
 {
     list *options = read_data_cfg(datacfg);
     char *name_list = option_find_str(options, "names", "data/names.list");
+    char *dir_anns = option_find_str(options, "annotations", "data/annotations/");
     int names_size = 0;
     char **names = get_labels_custom(name_list, &names_size); //get_labels(name_list);
 
@@ -1301,7 +1302,7 @@ void test_detector(char *datacfg, char *cfgfile, char *weightfile, char *filenam
         int nboxes = 0;
         detection *dets = get_network_boxes(&net, im.w, im.h, thresh, hier_thresh, 0, 1, &nboxes, letterbox);
         if (nms) do_nms_sort(dets, nboxes, l.classes, nms);
-        draw_detections_v3(im, dets, nboxes, thresh, names, alphabet, l.classes, ext_output, input);
+        draw_detections_v3(im, dets, nboxes, thresh, names, alphabet, l.classes, ext_output, input, dir_anns);
         save_image(im, "predictions");
         if (!dont_show) {
             show_image(im, "predictions");

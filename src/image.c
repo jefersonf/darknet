@@ -347,7 +347,7 @@ char *get_image_year(char *input) {
 
 /* end a jeferson update -------------------- */
 
-void draw_detections_v3(image im, detection *dets, int num, float thresh, char **names, image **alphabet, int classes, int ext_output, char *input)
+void draw_detections_v3(image im, detection *dets, int num, float thresh, char **names, image **alphabet, int classes, int ext_output, char *input, char *dir_anns)
 {
     static int frame_id = 0;
     frame_id++;
@@ -364,7 +364,7 @@ void draw_detections_v3(image im, detection *dets, int num, float thresh, char *
     FILE* xml_file = NULL;
     char buff[256];
     char *annatation_xml = buff;
-    char *dir_anns = "/home/jeferson/alexeyAB/darknet/ann/";
+    char *dir_anns = dir_anns;
     strcat(annatation_xml, dir_anns);
     strcat(annatation_xml, (input + get_last_slash_idx(input)));
 
