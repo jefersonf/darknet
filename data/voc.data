@@ -1,8 +1,8 @@
 classes= 20
-train  = /home/jeferson/alexeyAB/darknet/build/darknet/x64/data/voc/train.txt
-valid  = /home/jeferson/alexeyAB/darknet/build/darknet/x64/data/voc/2007_test.txt
+train  = /home/jeferson/darknet/2007_train.txt
+valid  = /home/jeferson/darknet/2007_test.txt
 names = data/voc.names
-backup = /home/jeferson/alexeyAB/darknet/backup/
-annotations = /home/jeferson/alexeyAB/darknet/anns/
+backup = /home/jeferson/darknet/backup/
+annotations = /home/jeferson/darknet/anns/
 
 
