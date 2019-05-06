@@ -357,8 +357,8 @@ void draw_detections_v3(image im, detection *dets, int num, float thresh, char *
     FILE* xml_file = NULL;
     char buff[256];
     char *annatation_xml = buff;
-    char *dir_anns = dir_anns;
-    strcat(annatation_xml, dir_anns);
+    char *dir_annotations = dir_anns;
+    strcat(annatation_xml, dir_annotations);
     strcat(annatation_xml, (input + get_last_slash_idx(input)));
 
     char *dot_ext;
